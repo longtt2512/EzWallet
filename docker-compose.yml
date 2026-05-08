@@ -1,0 +1,122 @@
+version: "3.9"
+
+# ============================================================================
+# EzWallet - Hạ tầng phát triển local
+# Khởi chạy: docker compose up -d
+# Tắt: docker compose down
+# ============================================================================
+
+services:
+  # PostgreSQL: Database chính lưu dữ liệu user, ví, giao dịch
+  postgres:
+    image: postgres:16-alpine
+    container_name: ezwallet-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ezwallet}
+      POSTGRES_USER: ${POSTGRES_USER:-ezwallet}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ezwallet123}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ezwallet}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ezwallet-net
+
+  # pgAdmin: Web UI quản lý PostgreSQL
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ezwallet-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@ezwallet.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    depends_on:
+      - postgres
+    networks:
+      - ezwallet-net
+
+  # MinIO: Object storage cho QR code, avatar, biên lai giao dịch
+  minio:
+    image: minio/minio:latest
+    container_name: ezwallet-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"     # S3 API
+      - "${MINIO_CONSOLE_PORT:-9001}:9001" # Web UI
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ezwallet-net
+
+  # MinIO setup: Tự động tạo bucket lúc khởi động
+  minio-init:
+    image: minio/mc:latest
+    container_name: ezwallet-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin};
+      mc mb -p local/ezwallet-public || true;
+      mc mb -p local/ezwallet-private || true;
+      mc anonymous set download local/ezwallet-public;
+      echo 'MinIO buckets initialized';
+      exit 0;
+      "
+    networks:
+      - ezwallet-net
+
+  # Redis: Cache OTP, rate limiting, session
+  redis:
+    image: redis:7-alpine
+    container_name: ezwallet-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis123}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ezwallet-net
+
+  # MailHog: Server SMTP giả để test email/OTP, không gửi mail thật ra ngoài
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: ezwallet-mailhog
+    ports:
+      - "${MAILHOG_SMTP_PORT:-1025}:1025" # SMTP
+      - "${MAILHOG_UI_PORT:-8025}:8025"   # Web UI
+    networks:
+      - ezwallet-net
+
+volumes:
+  postgres_data:
+    driver: local
+  minio_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  ezwallet-net:
+    driver: bridge

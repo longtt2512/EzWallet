@@ -1,0 +1,35 @@
+# ============================================================================
+# Profile: test (chạy unit test, dùng H2 in-memory để tests nhanh)
+# Integration test dùng Testcontainers sẽ override datasource bằng @DynamicPropertySource
+# ============================================================================
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:ezwallet_test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  flyway:
+    enabled: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  mail:
+    host: localhost
+    port: 1025
+
+logging:
+  level:
+    root: WARN
+    com.ptit.ezwallet: INFO
