@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="FIXED fee rules" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-05-09T09:26:40" hostname="MacBook-Pro-2.local" time="0.003">
+  <properties/>
+  <testcase name="R4 — TOPUP any tier: no fee (no rule)" classname="com.ezwallet.module.topup.service.FeeCalculationServiceTest$FixedFeeRules" time="0.001"/>
+  <testcase name="R1 — BRONZE WITHDRAW: fixed 5000 VND fee" classname="com.ezwallet.module.topup.service.FeeCalculationServiceTest$FixedFeeRules" time="0.0"/>
+  <testcase name="R2 — SILVER WITHDRAW: fixed 5000 VND fee" classname="com.ezwallet.module.topup.service.FeeCalculationServiceTest$FixedFeeRules" time="0.001"/>
+  <testcase name="R3 — GOLD WITHDRAW: fixed 0 VND fee" classname="com.ezwallet.module.topup.service.FeeCalculationServiceTest$FixedFeeRules" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

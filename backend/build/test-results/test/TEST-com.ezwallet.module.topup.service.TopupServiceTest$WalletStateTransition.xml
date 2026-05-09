@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="withdraw — State Transition: wallet FROZEN → debit rejected" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-05-09T09:26:40" hostname="MacBook-Pro-2.local" time="0.002">
+  <properties/>
+  <testcase name="ST-01: wallet FROZEN → debitWallet throws WALLET_NOT_ACTIVE, tx saved FAILED" classname="com.ezwallet.module.topup.service.TopupServiceTest$WalletStateTransition" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

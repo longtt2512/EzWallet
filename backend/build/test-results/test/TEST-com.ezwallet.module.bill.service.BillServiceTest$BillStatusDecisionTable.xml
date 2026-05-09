@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Decision Table: payBill — bill status matrix" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-05-09T09:26:40" hostname="MacBook-Pro-2.local" time="0.011">
+  <properties/>
+  <testcase name="DT-1: PAID bill → BILL_NOT_PAYABLE exception" classname="com.ezwallet.module.bill.service.BillServiceTest$BillStatusDecisionTable" time="0.006"/>
+  <testcase name="DT-2: EXPIRED bill → BILL_NOT_PAYABLE exception" classname="com.ezwallet.module.bill.service.BillServiceTest$BillStatusDecisionTable" time="0.0"/>
+  <testcase name="DT-3: CANCELLED bill → BILL_NOT_PAYABLE exception" classname="com.ezwallet.module.bill.service.BillServiceTest$BillStatusDecisionTable" time="0.001"/>
+  <testcase name="DT-01: UNPAID bill → payment accepted" classname="com.ezwallet.module.bill.service.BillServiceTest$BillStatusDecisionTable" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

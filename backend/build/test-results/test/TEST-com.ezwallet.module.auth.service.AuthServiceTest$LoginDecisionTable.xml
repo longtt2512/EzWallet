@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Login — decision table" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-05-09T09:26:39" hostname="MacBook-Pro-2.local" time="0.015">
+  <properties/>
+  <testcase name="Rule 3: PENDING_VERIFICATION → ACCOUNT_NOT_VERIFIED 403" classname="com.ezwallet.module.auth.service.AuthServiceTest$LoginDecisionTable" time="0.002"/>
+  <testcase name="Rule 4: BANNED → ACCOUNT_BANNED 403" classname="com.ezwallet.module.auth.service.AuthServiceTest$LoginDecisionTable" time="0.001"/>
+  <testcase name="Rule 2: ACTIVE + mật khẩu sai → INVALID_CREDENTIALS 401" classname="com.ezwallet.module.auth.service.AuthServiceTest$LoginDecisionTable" time="0.002"/>
+  <testcase name="Rule 5: LOCKED và lockedUntil chưa qua → ACCOUNT_LOCKED 403" classname="com.ezwallet.module.auth.service.AuthServiceTest$LoginDecisionTable" time="0.002"/>
+  <testcase name="Rule 1: ACTIVE + mật khẩu đúng → token trả về" classname="com.ezwallet.module.auth.service.AuthServiceTest$LoginDecisionTable" time="0.004"/>
+  <testcase name="Rule 6: LOCKED và lockedUntil đã qua → tự mở khoá, đăng nhập được" classname="com.ezwallet.module.auth.service.AuthServiceTest$LoginDecisionTable" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

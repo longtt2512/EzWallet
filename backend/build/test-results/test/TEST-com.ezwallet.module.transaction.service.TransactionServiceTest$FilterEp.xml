@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="EP: filter combinations" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-05-09T09:26:40" hostname="MacBook-Pro-2.local" time="0.006">
+  <properties/>
+  <testcase name="EP-05: no wallet for user — returns empty page immediately" classname="com.ezwallet.module.transaction.service.TransactionServiceTest$FilterEp" time="0.002"/>
+  <testcase name="EP-03: date range filter only — spec has dateFrom/dateTo predicates" classname="com.ezwallet.module.transaction.service.TransactionServiceTest$FilterEp" time="0.0"/>
+  <testcase name="EP-02: status filter only — spec has status predicate" classname="com.ezwallet.module.transaction.service.TransactionServiceTest$FilterEp" time="0.001"/>
+  <testcase name="EP-01: type filter only — spec has type predicate" classname="com.ezwallet.module.transaction.service.TransactionServiceTest$FilterEp" time="0.001"/>
+  <testcase name="EP-04: combined filters — all predicates applied" classname="com.ezwallet.module.transaction.service.TransactionServiceTest$FilterEp" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

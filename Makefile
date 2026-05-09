@@ -1,17 +1,29 @@
-# ============================================================================
-# EzWallet - Lệnh tiện ích
-# ============================================================================
+.PHONY: help dev up down restart logs ps clean be-run be-test be-build fe-install fe-run fe-test fe-build
 
-.PHONY: help up down restart logs ps clean be-run be-test be-build fe-run fe-test fe-build
-
-help: ## Hiển thị danh sách lệnh
+help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-# ----- Hạ tầng (Docker Compose) -----
-up: ## Khởi động postgres, minio, redis, pgadmin, mailhog
+# ----- One-command local dev -----
+dev: ## Start everything: infra + backend + frontend (Ctrl+C stops all)
+	@[ -f .env ] || (echo "Creating .env from .env.example..." && cp .env.example .env)
+	@lsof -ti :8080 | xargs kill -9 2>/dev/null && echo "Stopped existing process on :8080" || true
+	@lsof -ti :4200 | xargs kill -9 2>/dev/null && echo "Stopped existing process on :4200" || true
 	docker compose up -d
 	@echo ""
-	@echo "Hạ tầng đã sẵn sàng:"
+	@echo "Services:  http://localhost:8080/api/v1  |  http://localhost:4200"
+	@echo "Press Ctrl+C to stop backend and frontend."
+	@echo ""
+	@if [ ! -d frontend/node_modules ]; then cd frontend && npm install --silent; fi
+	@trap 'kill 0' EXIT; \
+	 (cd backend && ./gradlew bootRun --args='--spring.profiles.active=dev' 2>&1 | sed 's/^/[be] /') & \
+	 (cd frontend && npm start 2>&1 | sed 's/^/[fe] /') & \
+	 wait
+
+# ----- Infrastructure (Docker Compose) -----
+up: ## Start postgres, minio, redis, pgadmin, mailhog
+	docker compose up -d
+	@echo ""
+	@echo "Infrastructure ready:"
 	@echo "  PostgreSQL  : localhost:5432"
 	@echo "  pgAdmin     : http://localhost:5050"
 	@echo "  MinIO API   : http://localhost:9000"
@@ -19,39 +31,39 @@ up: ## Khởi động postgres, minio, redis, pgadmin, mailhog
 	@echo "  Redis       : localhost:6379"
 	@echo "  MailHog UI  : http://localhost:8025"
 
-down: ## Dừng tất cả container
+down: ## Stop all containers
 	docker compose down
 
-restart: down up ## Khởi động lại
+restart: down up ## Restart all containers
 
-logs: ## Xem log realtime
+logs: ## Stream container logs
 	docker compose logs -f
 
-ps: ## Trạng thái container
+ps: ## Show container status
 	docker compose ps
 
-clean: ## Xoá toàn bộ volume (mất dữ liệu DB!)
+clean: ## Remove all volumes (destroys DB data!)
 	docker compose down -v
 
 # ----- Backend -----
-be-run: ## Chạy Spring Boot ở chế độ dev
-	cd backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+be-run: ## Run Spring Boot in dev mode
+	cd backend && ./gradlew bootRun --args='--spring.profiles.active=dev'
 
-be-test: ## Chạy unit test backend
-	cd backend && ./mvnw test
+be-test: ## Run backend unit tests
+	cd backend && ./gradlew test
 
-be-build: ## Build jar backend
-	cd backend && ./mvnw clean package -DskipTests
+be-build: ## Build backend jar
+	cd backend && ./gradlew clean bootJar
 
 # ----- Frontend -----
-fe-install: ## Cài deps frontend
+fe-install: ## Install frontend dependencies
 	cd frontend && npm install
 
-fe-run: ## Chạy Angular dev server
+fe-run: ## Run Angular dev server
 	cd frontend && npm start
 
-fe-test: ## Chạy unit test frontend
+fe-test: ## Run frontend unit tests
 	cd frontend && npm test
 
-fe-build: ## Build production frontend
+fe-build: ## Build frontend for production
 	cd frontend && npm run build

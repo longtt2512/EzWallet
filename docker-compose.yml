@@ -1,13 +1,6 @@
 version: "3.9"
 
-# ============================================================================
-# EzWallet - Hạ tầng phát triển local
-# Khởi chạy: docker compose up -d
-# Tắt: docker compose down
-# ============================================================================
-
 services:
-  # PostgreSQL: Database chính lưu dữ liệu user, ví, giao dịch
   postgres:
     image: postgres:16-alpine
     container_name: ezwallet-postgres
@@ -27,7 +20,6 @@ services:
     networks:
       - ezwallet-net
 
-  # pgAdmin: Web UI quản lý PostgreSQL
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: ezwallet-pgadmin
@@ -42,7 +34,6 @@ services:
     networks:
       - ezwallet-net
 
-  # MinIO: Object storage cho QR code, avatar, biên lai giao dịch
   minio:
     image: minio/minio:latest
     container_name: ezwallet-minio
@@ -63,7 +54,6 @@ services:
     networks:
       - ezwallet-net
 
-  # MinIO setup: Tự động tạo bucket lúc khởi động
   minio-init:
     image: minio/mc:latest
     container_name: ezwallet-minio-init
@@ -99,7 +89,6 @@ services:
     networks:
       - ezwallet-net
 
-  # MailHog: Server SMTP giả để test email/OTP, không gửi mail thật ra ngoài
   mailhog:
     image: mailhog/mailhog:latest
     container_name: ezwallet-mailhog

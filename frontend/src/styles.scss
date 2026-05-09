@@ -1,33 +1,129 @@
 /* ============================================================================
-   EzWallet - Global styles
+   EzWallet — Global styles  (Design system: OLED Dark · Amber · Fira Sans)
    ============================================================================ */
 
 @use "@angular/material" as mat;
+
+/* Google Fonts — Fira Sans */
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @include mat.core();
 
-$ezwallet-primary:  mat.define-palette(mat.$indigo-palette);
-$ezwallet-accent:   mat.define-palette(mat.$pink-palette, A200, A100, A400);
+/* ── Dark theme — Amber primary + Purple accent ── */
+$ezwallet-primary:  mat.define-palette(mat.$amber-palette);
+$ezwallet-accent:   mat.define-palette(mat.$purple-palette, A200, A100, A400);
 $ezwallet-warn:     mat.define-palette(mat.$red-palette);
 
-$ezwallet-theme: mat.define-light-theme((
+$ezwallet-theme: mat.define-dark-theme((
   color: (
     primary: $ezwallet-primary,
     accent:  $ezwallet-accent,
     warn:    $ezwallet-warn
   ),
-  typography: mat.define-typography-config(),
+  typography: mat.define-typography-config(
+    $font-family: "'Fira Sans', 'Helvetica Neue', sans-serif"
+  ),
   density: 0
 ));
 
 @include mat.all-component-themes($ezwallet-theme);
 
+/* ── Design tokens ── */
+:root {
+  --ez-bg:        #0F172A;   /* slate-900  */
+  --ez-surface:   #1E293B;   /* slate-800  */
+  --ez-border:    #334155;   /* slate-700  */
+  --ez-text:      #F8FAFC;   /* slate-50   */
+  --ez-muted:     #94A3B8;   /* slate-400  */
+  --ez-gold:      #F59E0B;   /* amber-500  */
+  --ez-gold-lite: #FDE68A;   /* amber-200  */
+  --ez-purple:    #8B5CF6;   /* violet-500 */
+  --ez-green:     #22C55E;   /* green-500  */
+  --ez-red:       #EF4444;   /* red-500    */
+}
+
 html, body {
   height: 100%;
   margin: 0;
-  font-family: "Roboto", "Helvetica Neue", sans-serif;
-  background-color: #f5f6fa;
+  font-family: 'Fira Sans', 'Helvetica Neue', sans-serif;
+  background-color: var(--ez-bg);
+  color: var(--ez-text);
+  line-height: 1.6;
+}
+
+/* ── Fix Angular Material MDC notch pipe ──
+   Outlined form field splits border into leading/notch/trailing.
+   The notch's right edge renders as a pipe — suppress it. */
+.mdc-notched-outline__notch {
+  border-right: none !important;
+}
+
+/* ── Hide browser's native password reveal button ── */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear { display: none; }
+input::-webkit-credentials-auto-fill-button { visibility: hidden; }
+
+/* ── Smooth transitions on interactive elements ── */
+a, button { transition: color 150ms ease, background-color 150ms ease, opacity 150ms ease; }
+
+/* ── Scrollbar styling for dark theme ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--ez-bg); }
+::-webkit-scrollbar-thumb { background: var(--ez-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ez-muted); }
+
+/* ── Global snackbar — dark card matching app theme ── */
+:root {
+  /* Set at root so MDC always inherits these; overridden per class below */
+  --mdc-snackbar-container-color: #1E293B;
+  --mdc-snackbar-supporting-text-color: #F8FAFC;
+  --mat-snack-bar-button-color: #94A3B8;
+}
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: #1E293B;
+  --mdc-snackbar-supporting-text-color: #F8FAFC;
+  --mat-snack-bar-button-color: #94A3B8;
+}
+.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+  background: #1E293B !important;
+  border: 1px solid #334155 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+}
+/* 3-level selector beats Material's internal rule */
+.mat-mdc-snack-bar-container .mdc-snackbar__surface .mdc-snackbar__label {
+  color: #F8FAFC !important;
+  font-size: 14px !important;
+}
+.mat-mdc-snack-bar-container .mat-mdc-snack-bar-action .mdc-button__label {
+  color: #94A3B8 !important;
+  font-weight: 600 !important;
+}
+
+/* ── Success — green left accent ── */
+.mat-mdc-snack-bar-container.snack-success {
+  --mat-snack-bar-button-color: #22C55E;
+}
+.mat-mdc-snack-bar-container.snack-success .mdc-snackbar__surface {
+  border-color: rgba(34, 197, 94, 0.3) !important;
+  border-left: 3px solid #22C55E !important;
+}
+.mat-mdc-snack-bar-container.snack-success .mat-mdc-snack-bar-action .mdc-button__label {
+  color: #22C55E !important;
+}
+
+/* ── Error — red left accent ── */
+.mat-mdc-snack-bar-container.snack-error {
+  --mat-snack-bar-button-color: #EF4444;
+}
+.mat-mdc-snack-bar-container.snack-error .mdc-snackbar__surface {
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  border-left: 3px solid #EF4444 !important;
+}
+.mat-mdc-snack-bar-container.snack-error .mat-mdc-snack-bar-action .mdc-button__label {
+  color: #EF4444 !important;
 }

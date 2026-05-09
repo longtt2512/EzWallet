@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Register" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-05-09T09:26:39" hostname="MacBook-Pro-2.local" time="0.006">
+  <properties/>
+  <testcase name="Đăng ký thành công" classname="com.ezwallet.module.auth.service.AuthServiceTest$RegisterTests" time="0.005"/>
+  <testcase name="Đăng ký thất bại khi username đã tồn tại → CONFLICT" classname="com.ezwallet.module.auth.service.AuthServiceTest$RegisterTests" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

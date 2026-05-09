@@ -61,6 +61,13 @@ export const routes: Routes = [
             './features/transaction-history/transaction-history.component'
           ).then((m) => m.TransactionHistoryComponent),
       },
+      {
+        path: 'profile/change-password',
+        loadComponent: () =>
+          import('./features/profile/change-password.component').then(
+            (m) => m.ChangePasswordComponent
+          ),
+      },
     ],
   },
 

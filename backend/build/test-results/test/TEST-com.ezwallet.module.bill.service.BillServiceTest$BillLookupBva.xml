@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="BVA: bill lookup boundaries" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-05-09T09:26:39" hostname="MacBook-Pro-2.local" time="0.082">
+  <properties/>
+  <testcase name="BVA-01: bill code not found → BILL_NOT_FOUND exception" classname="com.ezwallet.module.bill.service.BillServiceTest$BillLookupBva" time="0.08"/>
+  <testcase name="BVA-02: idempotency key exists → returns bill without double charge" classname="com.ezwallet.module.bill.service.BillServiceTest$BillLookupBva" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

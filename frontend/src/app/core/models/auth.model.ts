@@ -1,6 +1,27 @@
 export interface LoginRequest {
-  username: string;
+  identifier: string;
   password: string;
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresIn: number;
+  user: UserProfile;
+}
+
+export type OtpPurpose = 'REGISTER' | 'RESET_PASSWORD' | 'TRANSFER' | 'WITHDRAW';
+
+export interface OtpVerifyRequest {
+  identifier: string;
+  purpose: OtpPurpose;
+  code: string;
+}
+
+export interface OtpResendRequest {
+  identifier: string;
+  purpose: OtpPurpose;
 }
 
 export interface RegisterRequest {

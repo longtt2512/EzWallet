@@ -1,12 +1,12 @@
 # EzWallet
 
-Ứng dụng ví điện tử mô phỏng — Bài tập lớn môn **Đảm bảo chất lượng phần mềm (INT1416)** — Học viện Công nghệ Bưu chính Viễn thông.
+A simulated e-wallet application with a Spring Boot backend and Angular frontend.
 
-## Mục tiêu
+## Objective
 
-Xây dựng một hệ thống ví điện tử có đủ chức năng cốt lõi để áp dụng các kỹ thuật đảm bảo chất lượng phần mềm: rà soát tài liệu, rà soát code, kiểm thử hộp đen, kiểm thử hộp trắng, kiểm thử giao diện, kiểm thử tự động.
+Build an e-wallet system with all core features: user registration, login, top-up/withdrawal, P2P transfer, bill payment, and transaction history.
 
-## Kiến trúc
+## Architecture
 
 ```
 ┌────────────────────┐     HTTPS / REST     ┌──────────────────────┐
@@ -18,7 +18,7 @@ Xây dựng một hệ thống ví điện tử có đủ chức năng cốt lõ
                                           ▼                          ▼
                                  ┌─────────────────┐         ┌──────────────┐
                                  │  PostgreSQL 16  │         │   MinIO      │
-                                 │  (dữ liệu chính)│         │ (file/QR/IMG)│
+                                 │  (primary data) │         │ (file/QR/IMG)│
                                  └─────────────────┘         └──────────────┘
                                           │
                                           ▼
@@ -28,76 +28,87 @@ Xây dựng một hệ thống ví điện tử có đủ chức năng cốt lõ
                                  └─────────────────┘
 ```
 
-## Phân chia chức năng (BTL nhóm 4 người)
+## Feature Modules
 
-| TV | Module | Chức năng | Kỹ thuật test trọng tâm |
-|----|--------|-----------|------------------------|
-| 1  | `auth`     | Đăng ký, đăng nhập, OTP, đổi mật khẩu, khoá tài khoản | BVA, decision table, state transition |
-| 2  | `topup`    | Nạp tiền / Rút tiền, liên kết thẻ-ngân hàng           | EP, BVA, decision table (phí), pairwise |
-| 3  | `transfer` | Chuyển tiền P2P, quét QR thanh toán                   | BVA, state transition, decision table   |
-| 4  | `bill`     | Thanh toán hoá đơn, lịch sử giao dịch, lọc            | Decision table, state transition, BVA   |
+| # | Module | Features | Primary Test Techniques |
+|---|--------|----------|------------------------|
+| 1 | `auth`     | Registration, login, OTP, change password, account lock | BVA, decision table, state transition |
+| 2 | `topup`    | Top-up / Withdrawal, bank account linking                | EP, BVA, decision table (fees), pairwise |
+| 3 | `transfer` | P2P transfer, QR code payment                           | BVA, state transition, decision table   |
+| 4 | `bill`     | Bill payment, transaction history, filtering             | Decision table, state transition, BVA   |
 
-## Yêu cầu môi trường
+## Prerequisites
 
 - Docker + Docker Compose
-- Java 17 (khuyến nghị Temurin)
-- Maven 3.9+ (hoặc dùng `./mvnw` đi kèm)
+- Java 17 (Temurin recommended)
+- Maven 3.9+ (or use the bundled `./mvnw`)
 - Node.js 20.x + npm 10.x
-- (Tuỳ chọn) Make
+- (Optional) Make
 
-## Khởi chạy nhanh
+## Quick Start
 
 ```bash
-# 1. Sao chép biến môi trường
-cp .env.example .env
-
-# 2. Khởi động hạ tầng (Postgres, MinIO, Redis, MailHog, pgAdmin)
-make up
-# Hoặc: docker compose up -d
-
-# 3. Chạy backend
-make be-run
-# Backend: http://localhost:8080
-# Swagger: http://localhost:8080/swagger-ui.html
-
-# 4. Cài đặt và chạy frontend (terminal khác)
-make fe-install
-make fe-run
-# Frontend: http://localhost:4200
+make dev
 ```
 
-## Các URL dịch vụ
+That's it. The command will:
+1. Create `.env` from `.env.example` if it doesn't exist (all defaults work out of the box)
+2. Start Docker infrastructure (Postgres, MinIO, Redis, MailHog, pgAdmin)
+3. Install frontend dependencies if `node_modules` is missing
+4. Launch backend and frontend in parallel, with prefixed log output
 
-| Dịch vụ      | URL                           | Tài khoản mặc định            |
-|--------------|-------------------------------|--------------------------------|
-| Frontend     | http://localhost:4200         | -                              |
-| Backend API  | http://localhost:8080/api/v1  | -                              |
-| Swagger UI   | http://localhost:8080/swagger-ui.html | -                       |
-| pgAdmin      | http://localhost:5050         | admin@ezwallet.local / admin123|
-| MinIO UI     | http://localhost:9001         | minioadmin / minioadmin        |
-| MailHog UI   | http://localhost:8025         | -                              |
+Press **Ctrl+C** to stop both processes. To stop Docker containers as well: `make down`.
 
-## Cấu trúc thư mục
+> **Individual commands** (if you need to run services separately):
+> ```bash
+> make up          # infrastructure only
+> make be-run      # backend only  (http://localhost:8080)
+> make fe-run      # frontend only (http://localhost:4200)
+> make down        # stop all Docker containers
+> ```
+
+## After Making Changes
+
+| What changed | Action |
+|---|---|
+| Frontend (`.ts`, `.html`, `.scss`) | **Nothing** — Angular dev server hot-reloads automatically |
+| Backend (`.java`, `application.yml`) | Press **Ctrl+C** then `make dev` again, or restart just the backend with `make be-run` |
+| Database schema (`V*.sql` Flyway migration) | Press **Ctrl+C**, then `make dev` — Flyway applies new migrations on startup |
+| Docker / infra config (`docker-compose.yml`) | `make down && make dev` |
+| Added npm package | `make fe-install`, then `make fe-run` (or `make dev`) |
+
+## Service URLs
+
+| Service      | URL                                   | Default Credentials            |
+|--------------|---------------------------------------|--------------------------------|
+| Frontend     | http://localhost:4200                 | -                              |
+| Backend API  | http://localhost:8080/api/v1          | -                              |
+| Swagger UI   | http://localhost:8080/swagger-ui.html | -                              |
+| pgAdmin      | http://localhost:5050                 | admin@ezwallet.local / admin123|
+| MinIO UI     | http://localhost:9001                 | minioadmin / minioadmin        |
+| MailHog UI   | http://localhost:8025                 | -                              |
+
+## Directory Structure
 
 ```
 EzWallet/
 ├── backend/         # Spring Boot 3.2 + Java 17
 ├── frontend/        # Angular 17 (standalone)
 ├── docs/
-│   ├── design/      # ERD, kiến trúc, hợp đồng API
-│   ├── sqa/         # Test plan, checklist rà soát, test case
-│   └── postman/     # Bộ test API
+│   ├── design/      # ERD, architecture, API contract
+│   ├── qa/          # Test plan, review checklist, test cases
+│   └── postman/     # API test collection
 ├── docker-compose.yml
 └── Makefile
 ```
 
-## Tài liệu liên quan
+## Related Documentation
 
-- [Kiến trúc](docs/design/architecture.md)
+- [Architecture](docs/design/architecture.md)
 - [ERD](docs/design/ERD.md)
-- [Hợp đồng API](docs/design/api-contract.md)
-- [Kế hoạch kiểm thử](docs/sqa/test-plan.md)
+- [API Contract](docs/design/api-contract.md)
+- [Test Plan](docs/qa/test-plan.md)
 
 ## License
 
-Phần mềm chỉ dùng cho mục đích học tập (môn INT1416 - PTIT). Không dùng cho thương mại.
+For educational and experimental use only. Not for commercial use.

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="State transition — UserStatus" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-05-09T09:26:39" hostname="MacBook-Pro-2.local" time="0.352">
+  <properties/>
+  <testcase name="ACTIVE → LOCKED sau 5 lần sai mật khẩu" classname="com.ezwallet.module.auth.service.AuthServiceTest$UserStatusTransition" time="0.336"/>
+  <testcase name="LOCKED → ACTIVE sau khi đặt lại mật khẩu thành công" classname="com.ezwallet.module.auth.service.AuthServiceTest$UserStatusTransition" time="0.011"/>
+  <testcase name="PENDING_VERIFICATION → ACTIVE sau khi verifyOtp(REGISTER)" classname="com.ezwallet.module.auth.service.AuthServiceTest$UserStatusTransition" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

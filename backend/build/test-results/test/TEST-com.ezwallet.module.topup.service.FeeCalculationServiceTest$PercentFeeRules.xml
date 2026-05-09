@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="PERCENT fee rules" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-05-09T09:26:40" hostname="MacBook-Pro-2.local" time="0.017">
+  <properties/>
+  <testcase name="R5 — 0.5% fee on 1000000 = 5000" classname="com.ezwallet.module.topup.service.FeeCalculationServiceTest$PercentFeeRules" time="0.016"/>
+  <testcase name="R7 — percent fee raised to feeMin" classname="com.ezwallet.module.topup.service.FeeCalculationServiceTest$PercentFeeRules" time="0.0"/>
+  <testcase name="R6 — percent fee capped at feeMax" classname="com.ezwallet.module.topup.service.FeeCalculationServiceTest$PercentFeeRules" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

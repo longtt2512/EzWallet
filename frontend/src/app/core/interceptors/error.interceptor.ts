@@ -18,7 +18,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((err: HttpErrorResponse) => {
       const apiMessage = err.error?.message ?? 'Đã có lỗi xảy ra';
 
-      if (err.status === 401) {
+      const isAuthEndpoint = req.url.includes('/auth/');
+      if (err.status === 401 && !isAuthEndpoint) {
         auth.logout();
         router.navigate(['/auth/login']);
       }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ezwallet.module.auth.service.OtpServiceTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-05-09T09:26:39" hostname="MacBook-Pro-2.local" time="0.042">
+  <properties/>
+  <testcase name="Generate OTP → lưu token với expiresAt đúng TTL" classname="com.ezwallet.module.auth.service.OtpServiceTest" time="0.037"/>
+  <testcase name="BVA: 5 lần sai (đúng limit) → OTP_MAX_ATTEMPTS, token bị đánh dấu used" classname="com.ezwallet.module.auth.service.OtpServiceTest" time="0.002"/>
+  <testcase name="BVA: 4 lần sai (limit-1) → OTP_INVALID, token chưa bị invalidate" classname="com.ezwallet.module.auth.service.OtpServiceTest" time="0.001"/>
+  <testcase name="BVA: OTP đã hết hạn → OTP_NOT_FOUND" classname="com.ezwallet.module.auth.service.OtpServiceTest" time="0.001"/>
+  <testcase name="BVA: OTP còn hiệu lực → verify thành công" classname="com.ezwallet.module.auth.service.OtpServiceTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

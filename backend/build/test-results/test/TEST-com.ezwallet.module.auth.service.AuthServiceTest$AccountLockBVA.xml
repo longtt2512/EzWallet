@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Account lock — BVA trên failedLoginAttempts" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-05-09T09:26:39" hostname="MacBook-Pro-2.local" time="0.008">
+  <properties/>
+  <testcase name="4 lần sai (limit-1=4) → chưa bị khoá, status vẫn ACTIVE" classname="com.ezwallet.module.auth.service.AuthServiceTest$AccountLockBVA" time="0.006"/>
+  <testcase name="5 lần sai (đúng limit=5) → tài khoản LOCKED" classname="com.ezwallet.module.auth.service.AuthServiceTest$AccountLockBVA" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

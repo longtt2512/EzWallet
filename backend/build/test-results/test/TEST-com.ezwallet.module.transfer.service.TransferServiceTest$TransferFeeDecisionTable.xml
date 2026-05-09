@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Decision table: fee rules for TRANSFER (tier × amount)" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-05-09T09:26:40" hostname="MacBook-Pro-2.local" time="0.026">
+  <properties/>
+  <testcase name="DT-01: GOLD tier → always 0 fee regardless of amount" classname="com.ezwallet.module.transfer.service.TransferServiceTest$TransferFeeDecisionTable" time="0.024"/>
+  <testcase name="DT-02: receiver not found → RECEIVER_NOT_FOUND exception" classname="com.ezwallet.module.transfer.service.TransferServiceTest$TransferFeeDecisionTable" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="p2pTransfer — Self-transfer rejection" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-05-09T09:26:40" hostname="MacBook-Pro-2.local" time="0.001">
+  <properties/>
+  <testcase name="BVA-03: sender == receiver → SELF_TRANSFER exception" classname="com.ezwallet.module.transfer.service.TransferServiceTest$SelfTransfer" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
