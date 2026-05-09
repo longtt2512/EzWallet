@@ -1,6 +1,6 @@
-# EzWallet - Kiến trúc hệ thống
+# EzWallet - System Architecture
 
-## Sơ đồ tổng thể
+## High-Level Diagram
 
 ```
 ┌──────────────────────┐      HTTPS / JSON      ┌──────────────────────┐
@@ -14,24 +14,24 @@
                        ▼                                                  ▼
               ┌───────────────────┐                              ┌────────────────┐
               │  PostgreSQL 16    │                              │   MinIO (S3)   │
-              │  (DB nghiệp vụ)   │                              │   - Public     │
+              │  (business DB)    │                              │   - Public     │
               └───────────────────┘                              │   - Private    │
                        │                                         └────────────────┘
                        ▼
               ┌───────────────────┐
               │     Redis 7       │
-              │  - Cache OTP      │
+              │  - OTP cache      │
               │  - Rate limiting  │
               │  - Refresh tokens │
               └───────────────────┘
 
               ┌───────────────────┐
               │   MailHog (dev)   │
-              │   SMTP giả lập    │
+              │   Mock SMTP       │
               └───────────────────┘
 ```
 
-## Layer trong backend
+## Backend Layers
 
 ```
 controller  →  service  →  repository (JPA)  →  PostgreSQL
@@ -42,38 +42,38 @@ controller  →  service  →  repository (JPA)  →  PostgreSQL
                   └── FeeCalculator (in-memory)
 ```
 
-## Module-based packaging
+## Module-Based Packaging
 
-Khác với layer-based truyền thống (`controller/`, `service/`, `repository/` ở top-level), code được nhóm theo *module nghiệp vụ* để các phần chức năng có ranh giới rõ ràng:
+Unlike the traditional layer-based approach (top-level `controller/`, `service/`, `repository/` packages), code is grouped by *business module* so each functional area has clear boundaries:
 
 ```
 com.ezwallet
 ├── EzWalletApplication
-├── common      (ApiResponse, BaseEntity, Constants - dùng chung)
+├── common      (ApiResponse, BaseEntity, Constants — shared utilities)
 ├── exception   (GlobalExceptionHandler)
-├── config      (SecurityConfig, JwtConfig, MinioConfig, ...)
+├── config      (SecurityConfig, JwtConfig, MinioConfig, …)
 └── module
-    ├── auth          (Member 1) - đăng ký, đăng nhập, OTP
-    ├── account       (Shared)   - User, Wallet entity
+    ├── auth          (Member 1) — register, login, OTP
+    ├── account       (Shared)   — User, Wallet entities
     ├── topup         (Member 2)
-    ├── transfer      (Member 3 - Long)
+    ├── transfer      (Member 3 — Long)
     ├── bill          (Member 4)
-    └── transaction   (Shared)   - lịch sử
+    └── transaction   (Shared)   — transaction history
 ```
 
-## Bảo mật
+## Security
 
-- **Stateless JWT**: access token (15 phút) + refresh token (7 ngày).
-- **BCrypt** strength 12 cho password.
-- **OTP** lưu trong Redis với TTL 5 phút, hash bằng SHA-256 trước khi compare.
-- **Idempotency Key** trên POST giao dịch (chặn double-submit).
-- **Rate limit** bằng Redis: 5 lần đăng nhập sai / 15 phút.
-- **Optimistic locking** (`@Version`) trên Wallet để tránh race condition khi 2 giao dịch trừ tiền cùng lúc.
+- **Stateless JWT**: access token (15 minutes) + refresh token (7 days).
+- **BCrypt** strength 12 for password hashing.
+- **OTP** stored in Redis with a 5-minute TTL; SHA-256 hashed before comparison.
+- **Idempotency Key** on POST transaction endpoints to prevent double-submission.
+- **Rate limiting** via Redis: 5 failed login attempts per 15 minutes.
+- **Optimistic locking** (`@Version`) on the Wallet entity to prevent race conditions when two transactions debit the same wallet concurrently.
 
-## Dữ liệu nghiệp vụ vs cấu hình
+## Business Data vs. Configuration
 
-Các giá trị nghiệp vụ (phí, hạn mức) **không** hard-code trong Java mà nằm ở bảng `fee_rules`, `transaction_limits` — để test bảng quyết định / biên giá trị có thể thay đổi case mà không sửa code.
+Business values (fees, limits) are **not** hard-coded in Java. They are stored in the `fee_rules` and `transaction_limits` tables so that decision-table and boundary-value test cases can be changed without modifying code.
 
-## Ranh giới giao dịch (Transaction)
+## Transaction Boundaries
 
-Mỗi luồng nghiệp vụ làm thay đổi balance ví (chuyển tiền, nạp, rút, thanh toán hoá đơn) đều bọc trong `@Transactional` với mức `READ_COMMITTED`. Optimistic locking `@Version` trên Wallet đảm bảo nếu 2 request đồng thời trừ tiền cùng 1 ví, 1 trong 2 sẽ throw `OptimisticLockException` và rollback.
+Every business flow that modifies a wallet balance (transfer, deposit, withdrawal, bill payment) is wrapped in `@Transactional` with `READ_COMMITTED` isolation. Optimistic locking (`@Version`) on the Wallet entity ensures that if two concurrent requests attempt to debit the same wallet, one of them will throw an `OptimisticLockException` and roll back.

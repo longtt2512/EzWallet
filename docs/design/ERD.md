@@ -1,6 +1,6 @@
-# EzWallet - Sơ đồ thực thể (ERD)
+# EzWallet - Entity Relationship Diagram (ERD)
 
-## Tổng quan
+## Overview
 
 ```
 ┌──────────────┐       1   1 ┌─────────────┐
@@ -26,34 +26,34 @@
 └──────────────┘         └────────────────────┘         └──────────────┘
 ```
 
-## Bảng chính
+## Core Tables
 
 ### users
-Thông tin người dùng. Trạng thái `status` hỗ trợ test state transition: `PENDING_VERIFICATION → ACTIVE → LOCKED → ACTIVE → BANNED`. Trường `failed_login_attempts` + `locked_until` dùng cho rule khoá tài khoản (5 lần sai → khoá 15 phút).
+Stores user account information. The `status` field supports state transition testing: `PENDING_VERIFICATION → ACTIVE → LOCKED → ACTIVE → BANNED`. The `failed_login_attempts` and `locked_until` fields implement the account lock rule (5 failed attempts → locked for 15 minutes).
 
 ### wallets
-Mỗi user có 1 ví duy nhất. CHECK constraint `balance >= 0` ở DB để đảm bảo không bao giờ âm.
+Each user has exactly one wallet. A `CHECK` constraint (`balance >= 0`) is enforced at the database level to guarantee the balance never goes negative.
 
 ### transactions
-Bảng *cha* cho mọi loại giao dịch — phân loại bằng `type` (TOPUP / WITHDRAW / TRANSFER / BILL_PAYMENT). Trạng thái `status` chuyển: `PENDING → SUCCESS / FAILED / REFUNDED`. Có `idempotency_key` để chặn double-submit.
+The *parent* table for all transaction types — categorised by `type` (TOPUP / WITHDRAW / TRANSFER / BILL_PAYMENT). The `status` field transitions: `PENDING → SUCCESS / FAILED / REFUNDED`. An `idempotency_key` column prevents double-submission.
 
-### fee_rules (bảng quyết định cho test)
-Mỗi rule đại diện 1 hàng trong bảng quyết định khi tính phí: `(tx_type × tier × min_amount × max_amount) → fee_value`. Đẩy ra DB để dễ thêm test case mà không sửa code.
+### fee_rules (decision-table lookup)
+Each row represents one entry in the fee decision table: `(tx_type × tier × min_amount × max_amount) → fee_value`. Storing rules in the database makes it easy to add test cases without modifying code.
 
-### transaction_limits (test biên giá trị)
-Hạn mức `(tier × tx_type) → per_transaction / per_day / per_month`. Test biên dùng các giá trị: `per_transaction - 1`, `per_transaction`, `per_transaction + 1`.
+### transaction_limits (boundary value testing)
+Defines limits `(tier × tx_type) → per_transaction / per_day / per_month`. Boundary value tests use: `per_transaction - 1`, `per_transaction`, `per_transaction + 1`.
 
 ### otp_tokens
-Hash của OTP (không lưu plaintext), `attempts` để chặn brute-force, `expires_at` cho TTL 5 phút.
+Stores a hash of the OTP (never plaintext), an `attempts` counter to prevent brute-force, and `expires_at` for a 5-minute TTL.
 
-## Mapping với kỹ thuật kiểm thử
+## Mapping to Testing Techniques
 
-| Bảng/Trường | Kỹ thuật áp dụng |
+| Table / Field | Technique Applied |
 |---|---|
-| `users.status`        | State transition (4 trạng thái, nhiều phép chuyển) |
-| `users.failed_login_attempts` | Boundary value (0, 4, 5, 6) |
-| `transactions.status` | State transition (PENDING → ...) |
-| `fee_rules`           | Decision table (mỗi rule = 1 dòng) |
-| `transaction_limits`  | Boundary value, equivalence partitioning |
-| `wallets.balance`     | Boundary (0, 1, max) + CHECK constraint test |
-| `bills.status`        | State transition (UNPAID → PAID/EXPIRED/CANCELLED) |
+| `users.status`                | State transition (4 states, multiple transitions) |
+| `users.failed_login_attempts` | Boundary value analysis (0, 4, 5, 6) |
+| `transactions.status`         | State transition (PENDING → …) |
+| `fee_rules`                   | Decision table (each row = one rule) |
+| `transaction_limits`          | Boundary value analysis, equivalence partitioning |
+| `wallets.balance`             | Boundary (0, 1, max) + CHECK constraint test |
+| `bills.status`                | State transition (UNPAID → PAID / EXPIRED / CANCELLED) |
