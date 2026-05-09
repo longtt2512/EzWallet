@@ -9,9 +9,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "Auth", description = "Đăng ký, đăng nhập, OTP, đổi mật khẩu")
 @RestController
@@ -65,6 +67,24 @@ public class AuthController {
                         .getCredentials().toString());
         authService.logout(userId);
         return ApiResponse.ok(null, "Đăng xuất thành công");
+    }
+
+    @Operation(summary = "Upload ảnh đại diện")
+    @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<UserProfileDto> uploadAvatar(@RequestParam("file") MultipartFile file) {
+        return ApiResponse.ok(authService.uploadAvatar(resolveUserId(), file), "Cập nhật ảnh đại diện thành công");
+    }
+
+    @Operation(summary = "Lấy thông tin hồ sơ")
+    @GetMapping("/profile")
+    public ApiResponse<UserProfileDto> getProfile() {
+        return ApiResponse.ok(authService.getProfile(resolveUserId()), "Thành công");
+    }
+
+    @Operation(summary = "Cập nhật hồ sơ")
+    @PutMapping("/profile")
+    public ApiResponse<UserProfileDto> updateProfile(@Valid @RequestBody UpdateProfileRequest req) {
+        return ApiResponse.ok(authService.updateProfile(resolveUserId(), req), "Cập nhật thành công");
     }
 
     @Operation(summary = "Đổi mật khẩu")

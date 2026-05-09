@@ -55,6 +55,38 @@ export class AuthService {
     return this.http.post<ApiResponse<void>>(`${this.apiUrl}/reset-password`, { identifier, otpCode, newPassword });
   }
 
+  uploadAvatar(file: File): Observable<ApiResponse<UserProfile>> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<ApiResponse<UserProfile>>(`${this.apiUrl}/avatar`, fd).pipe(
+      tap((res) => {
+        if (res.success && res.data) {
+          this.currentUser.set(res.data);
+        }
+      }),
+    );
+  }
+
+  getProfile(): Observable<ApiResponse<UserProfile>> {
+    return this.http.get<ApiResponse<UserProfile>>(`${this.apiUrl}/profile`).pipe(
+      tap((res) => {
+        if (res.success && res.data) {
+          this.currentUser.set(res.data);
+        }
+      }),
+    );
+  }
+
+  updateProfile(fullName: string, phone: string): Observable<ApiResponse<UserProfile>> {
+    return this.http.put<ApiResponse<UserProfile>>(`${this.apiUrl}/profile`, { fullName, phone }).pipe(
+      tap((res) => {
+        if (res.success && res.data) {
+          this.currentUser.set(res.data);
+        }
+      }),
+    );
+  }
+
   changePassword(currentPassword: string, newPassword: string, confirmPassword: string): Observable<ApiResponse<void>> {
     return this.http.post<ApiResponse<void>>(`${this.apiUrl}/change-password`, {
       currentPassword, newPassword, confirmPassword,

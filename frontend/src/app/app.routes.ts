@@ -62,10 +62,10 @@ export const routes: Routes = [
           ).then((m) => m.TransactionHistoryComponent),
       },
       {
-        path: 'profile/change-password',
+        path: 'profile',
         loadComponent: () =>
-          import('./features/profile/change-password.component').then(
-            (m) => m.ChangePasswordComponent
+          import('./features/profile/profile.component').then(
+            (m) => m.ProfileComponent
           ),
       },
     ],

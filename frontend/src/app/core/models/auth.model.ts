@@ -45,6 +45,7 @@ export interface UserProfile {
   email: string;
   phone: string;
   fullName?: string;
+  avatarUrl?: string;
   status: 'PENDING_VERIFICATION' | 'ACTIVE' | 'LOCKED' | 'BANNED';
   tier: 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM';
 }

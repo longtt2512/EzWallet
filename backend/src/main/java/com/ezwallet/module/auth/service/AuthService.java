@@ -3,6 +3,7 @@ package com.ezwallet.module.auth.service;
 import com.ezwallet.common.Constants;
 import com.ezwallet.config.JwtProperties;
 import com.ezwallet.config.JwtTokenProvider;
+import com.ezwallet.config.MinioProperties;
 import com.ezwallet.exception.BusinessException;
 import com.ezwallet.module.account.entity.*;
 import com.ezwallet.module.account.repository.UserRepository;
@@ -10,6 +11,8 @@ import com.ezwallet.module.account.repository.WalletRepository;
 import com.ezwallet.module.auth.dto.*;
 import com.ezwallet.module.auth.entity.OtpPurpose;
 import com.ezwallet.module.auth.mapper.UserMapper;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -17,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -35,6 +39,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final MinioClient minioClient;
+    private final MinioProperties minioProperties;
 
     @Transactional
     public void register(RegisterRequest req) {
@@ -214,7 +220,85 @@ public class AuthService {
         redisTemplate.delete(Constants.REDIS_PREFIX_REFRESH_TOKEN + user.getId());
     }
 
+    @Transactional
+    public UserProfileDto uploadAvatar(Long userId, MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new BusinessException("INVALID_FILE", "File không hợp lệ", HttpStatus.BAD_REQUEST);
+        }
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new BusinessException("INVALID_FILE_TYPE", "Chỉ chấp nhận file ảnh (jpg, png, webp)", HttpStatus.BAD_REQUEST);
+        }
+        if (file.getSize() > 5L * 1024 * 1024) {
+            throw new BusinessException("FILE_TOO_LARGE", "Ảnh tối đa 5MB", HttpStatus.BAD_REQUEST);
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "Người dùng không tồn tại", HttpStatus.NOT_FOUND));
+
+        String ext = resolveExtension(file.getOriginalFilename(), contentType);
+        String objectName = "avatars/" + userId + "." + ext;
+
+        try {
+            minioClient.putObject(PutObjectArgs.builder()
+                    .bucket(minioProperties.getBucketPublic())
+                    .object(objectName)
+                    .stream(file.getInputStream(), file.getSize(), -1)
+                    .contentType(contentType)
+                    .build());
+        } catch (Exception e) {
+            throw new BusinessException("UPLOAD_FAILED", "Không thể tải ảnh lên: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        // Append cache-buster so browsers reload after each re-upload
+        String avatarUrl = minioProperties.getEndpoint() + "/" + minioProperties.getBucketPublic()
+                + "/" + objectName + "?v=" + System.currentTimeMillis();
+        user.setAvatarUrl(avatarUrl);
+        userRepository.save(user);
+        return userMapper.toDto(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UserProfileDto getProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "Người dùng không tồn tại", HttpStatus.NOT_FOUND));
+        return userMapper.toDto(user);
+    }
+
+    @Transactional
+    public UserProfileDto updateProfile(Long userId, UpdateProfileRequest req) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "Người dùng không tồn tại", HttpStatus.NOT_FOUND));
+
+        if (req.phone() != null && !req.phone().isBlank() && !req.phone().equals(user.getPhone())) {
+            if (userRepository.existsByPhone(req.phone())) {
+                throw new BusinessException("PHONE_TAKEN", "Số điện thoại đã được sử dụng", HttpStatus.CONFLICT);
+            }
+            user.setPhone(req.phone());
+        }
+
+        if (req.fullName() != null && !req.fullName().isBlank()) {
+            user.setFullName(req.fullName());
+        }
+
+        userRepository.save(user);
+        return userMapper.toDto(user);
+    }
+
     // ---- helpers ----
+
+    private String resolveExtension(String filename, String contentType) {
+        if (filename != null && filename.contains(".")) {
+            String ext = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
+            if (ext.matches("jpg|jpeg|png|webp|gif")) return ext.equals("jpeg") ? "jpg" : ext;
+        }
+        return switch (contentType) {
+            case "image/png"  -> "png";
+            case "image/webp" -> "webp";
+            case "image/gif"  -> "gif";
+            default           -> "jpg";
+        };
+    }
 
     public User findUserByIdentifier(String identifier) {
         return userRepository.findByUsername(identifier)

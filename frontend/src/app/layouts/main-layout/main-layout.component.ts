@@ -85,6 +85,31 @@ interface NavItem {
       padding: 0 24px;
     }
 
+    .topbar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid rgba(245,158,11,0.35);
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(245,158,11,0.12);
+    }
+    .topbar-avatar:hover {
+      border-color: rgba(245,158,11,0.7);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+    }
+    .topbar-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
     .page-area {
       flex: 1;
       overflow-y: auto;
@@ -129,8 +154,15 @@ interface NavItem {
       <header class="topbar">
         <span class="text-sm text-slate-400 font-medium">{{ currentPageLabel() }}</span>
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-            <mat-icon class="!text-base !w-4 !h-4 text-amber-400">person</mat-icon>
+          <div class="topbar-avatar" (click)="router.navigate(['/profile'])"
+               [matTooltip]="auth.currentUser()?.fullName || auth.currentUser()?.username || 'Tài khoản'"
+               aria-label="Đến trang tài khoản">
+            @if (auth.currentUser()?.avatarUrl) {
+              <img [src]="auth.currentUser()!.avatarUrl" alt="Ảnh đại diện"
+                   (error)="onAvatarImgError($event)">
+            } @else {
+              <mat-icon class="!text-base !w-4 !h-4 text-amber-400">person</mat-icon>
+            }
           </div>
         </div>
       </header>
@@ -143,8 +175,8 @@ interface NavItem {
   `,
 })
 export class MainLayoutComponent {
-  private readonly auth = inject(AuthService);
-  private readonly router = inject(Router);
+  readonly auth = inject(AuthService);
+  readonly router = inject(Router);
 
   readonly navItems: NavItem[] = [
     { path: '/dashboard',               label: 'Tổng quan',     icon: 'dashboard' },
@@ -152,7 +184,7 @@ export class MainLayoutComponent {
     { path: '/transfer',                label: 'Chuyển tiền',   icon: 'send' },
     { path: '/bills',                   label: 'Hoá đơn',       icon: 'receipt_long' },
     { path: '/history',                 label: 'Lịch sử GD',    icon: 'history' },
-    { path: '/profile/change-password', label: 'Đổi mật khẩu', icon: 'lock' },
+    { path: '/profile',                  label: 'Tài khoản',    icon: 'person' },
   ];
 
   currentPageLabel(): string {
@@ -163,5 +195,9 @@ export class MainLayoutComponent {
   logout(): void {
     this.auth.logout();
     this.router.navigate(['/auth/login']);
+  }
+
+  onAvatarImgError(event: Event): void {
+    (event.target as HTMLImageElement).style.display = 'none';
   }
 }

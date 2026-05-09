@@ -9,6 +9,7 @@ public record UserProfileDto(
         String email,
         String phone,
         String fullName,
+        String avatarUrl,
         UserStatus status,
         UserTier tier
 ) {}
