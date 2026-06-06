@@ -8,6 +8,7 @@ import com.ezwallet.module.auth.entity.OtpToken;
 import com.ezwallet.module.auth.repository.OtpTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -30,9 +31,20 @@ public class OtpService {
     private final PasswordEncoder passwordEncoder;
     private static final SecureRandom RANDOM = new SecureRandom();
 
+    @Value("${ezwallet.perf-mode:false}")
+    private boolean perfMode;
+
     @Transactional
     public String generate(User user, String contact, OtpPurpose purpose) {
-        String code = String.format("%06d", RANDOM.nextInt(1_000_000));
+        // Performance mode: always generate 123456 for testing
+        String code;
+        if (perfMode) {
+            code = "123456";
+            log.debug("PERF MODE: Generated fixed OTP for user {} and purpose {}", user.getEmail(), purpose);
+        } else {
+            code = String.format("%06d", RANDOM.nextInt(1_000_000));
+        }
+
         OtpToken token = OtpToken.builder()
                 .user(user)
                 .contact(contact)

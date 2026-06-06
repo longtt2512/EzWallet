@@ -26,6 +26,8 @@ server:
 
 # ----- Cấu hình JWT (đọc từ biến môi trường, có giá trị mặc định cho dev) -----
 ezwallet:
+  # Performance testing mode - set to true to use fixed OTP (123456) for load testing
+  perf-mode: ${PERF_MODE:false}
   security:
     jwt:
       secret: ${JWT_SECRET:ezwallet-super-secret-key-change-me-in-production-please-make-it-long-enough-for-hs256}

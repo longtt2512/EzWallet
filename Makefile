@@ -1,4 +1,4 @@
-.PHONY: help dev up down restart logs ps clean be-run be-test be-build fe-install fe-run fe-test fe-build
+.PHONY: help dev dev-perf up down restart logs ps clean be-run be-run-perf be-test be-build fe-install fe-run fe-test fe-build
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -16,6 +16,22 @@ dev: ## Start everything: infra + backend + frontend (Ctrl+C stops all)
 	@if [ ! -d frontend/node_modules ]; then cd frontend && npm install --silent; fi
 	@trap 'kill 0' EXIT; \
 	 (cd backend && ./gradlew bootRun --args='--spring.profiles.active=dev' 2>&1 | sed 's/^/[be] /') & \
+	 (cd frontend && npm start 2>&1 | sed 's/^/[fe] /') & \
+	 wait
+
+dev-perf: ## Start with PERF_MODE=true (fixed OTP=123456 for load testing)
+	@[ -f .env ] || (echo "Creating .env from .env.example..." && cp .env.example .env)
+	@lsof -ti :8080 | xargs kill -9 2>/dev/null && echo "Stopped existing process on :8080" || true
+	@lsof -ti :4200 | xargs kill -9 2>/dev/null && echo "Stopped existing process on :4200" || true
+	docker compose up -d
+	@echo ""
+	@echo "⚠️  PERF_MODE=true - All OTPs will be 123456"
+	@echo "Services:  http://localhost:8080/api/v1  |  http://localhost:4200"
+	@echo "Press Ctrl+C to stop backend and frontend."
+	@echo ""
+	@if [ ! -d frontend/node_modules ]; then cd frontend && npm install --silent; fi
+	@trap 'kill 0' EXIT; \
+	 (export PERF_MODE=true && cd backend && ./gradlew bootRun --args='--spring.profiles.active=dev' 2>&1 | sed 's/^/[be] /') & \
 	 (cd frontend && npm start 2>&1 | sed 's/^/[fe] /') & \
 	 wait
 
@@ -48,6 +64,10 @@ clean: ## Remove all volumes (destroys DB data!)
 # ----- Backend -----
 be-run: ## Run Spring Boot in dev mode
 	cd backend && ./gradlew bootRun --args='--spring.profiles.active=dev'
+
+be-run-perf: ## Run Spring Boot in performance mode (fixed OTP=123456)
+	@echo "⚠️  PERF_MODE=true - All OTPs will be 123456"
+	export PERF_MODE=true && cd backend && ./gradlew bootRun --args='--spring.profiles.active=dev'
 
 be-test: ## Run backend unit tests
 	cd backend && ./gradlew test
