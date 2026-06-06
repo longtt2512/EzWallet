@@ -162,3 +162,23 @@ Add balance: `docker exec -i ezwallet-postgres psql -U ezwallet -d ezwallet < ad
 - **PERF_MODE.md** - Technical details about PERF_MODE implementation
 - **jmeter/README.md** - JMeter-specific instructions and best practices
 - **jmeter/VERIFICATION_CHECKLIST.md** - Endpoint verification checklist
+
+## Cleanup After Testing
+
+After running performance tests, cleanup test data:
+
+```bash
+cd performance-tests
+./cleanup-performance-data.sh
+```
+
+This will:
+- Delete all transactions from test accounts
+- Delete all QR codes created during tests
+- Delete all OTP tokens
+- Reset wallet balances to 50,000,000 VND
+
+**Manual cleanup (SQL):**
+```bash
+docker exec -i ezwallet-postgres psql -U ezwallet -d ezwallet < cleanup-performance-data.sql
+```

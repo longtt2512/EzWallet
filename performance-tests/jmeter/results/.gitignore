@@ -1,0 +1,10 @@
+# Ignore all JMeter test results
+*.jtl
+*.log
+*-html-*/
+smoke-*/
+
+# Keep only README
+!README.md
+!.gitignore
+*.json
