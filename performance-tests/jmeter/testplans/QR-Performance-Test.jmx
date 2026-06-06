@@ -67,7 +67,7 @@
         <boolProp name="recycle">true</boolProp>
         <stringProp name="shareMode">shareMode.all</stringProp>
         <boolProp name="stopThread">false</boolProp>
-        <stringProp name="variableNames">email,password</stringProp>
+        <stringProp name="variableNames">identifier,password</stringProp>
       </CSVDataSet>
       <hashTree/>
 
@@ -93,7 +93,7 @@
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
                 <stringProp name="Argument.value">{&#xd;
-  &quot;email&quot;: &quot;${email}&quot;,&#xd;
+  &quot;identifier&quot;: &quot;${identifier}&quot;,&#xd;
   &quot;password&quot;: &quot;${password}&quot;&#xd;
 }</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>

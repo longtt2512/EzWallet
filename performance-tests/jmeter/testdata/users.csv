@@ -1,6 +1,6 @@
-email,password
-user1@test.com,Password123!
-user2@test.com,Password123!
-user3@test.com,Password123!
-user4@test.com,Password123!
-user5@test.com,Password123!
+identifier,password
+user1,Password123!
+user2,Password123!
+user3,Password123!
+user4,Password123!
+user5,Password123!
